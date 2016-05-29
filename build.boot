@@ -56,7 +56,7 @@
         (script {:attrs {:id "config" :type "text/edn" :innerHTML (pr-str data)}}))
       (body {}
         (div {:attrs {:id "app"}})
-        (script {:attrs {:src script-name}}))))))
+        (script {:attrs {:src resource-name}}))))))
 
 (deftask html-file
   "task to generate HTML file"
@@ -109,7 +109,7 @@
 
 (deftask send-tiye []
   (comp
-    (build-simple)
+    (build-advanced)
     (rsync)))
 
 (deftask build []

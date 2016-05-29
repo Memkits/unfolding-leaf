@@ -2,7 +2,9 @@
 Unfolding Leaf
 ----
 
-a "Mind Flow"-like thing...
+A very simple mind map toolkit in Respo.
+
+Demo repo.tiye.me/Memkits/unfolding-leaf/
 
 ### Develop
 

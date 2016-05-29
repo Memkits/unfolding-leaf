@@ -33,7 +33,7 @@
    :color (hsl 0 0 60),
    :text-align "left",
    :font-size "14px",
-   :background-color (hsl 200 80 100),
+   :background-color (if (= text "") (hsl 0 80 96) (hsl 200 80 100)),
    :width (max 80 (+ 16 (meature-width text "16px" "Verdana"))),
    :padding "0 8px",
    :outline "none",
