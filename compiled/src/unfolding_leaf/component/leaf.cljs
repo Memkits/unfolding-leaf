@@ -2,7 +2,8 @@
 (ns unfolding-leaf.component.leaf
   (:require [respo.alias :refer [create-comp div span input button]]
             [hsl.core :refer [hsl]]
-            [unfolding-leaf.util.text :refer [text]]))
+            [unfolding-leaf.util.text :refer [text]]
+            [unfolding-leaf.util.width :refer [meature-width]]))
 
 (declare comp-leaf)
 
@@ -11,26 +12,35 @@
 (def style-list
  {:border-style "solid",
   :align-items "flex-start",
-  :border-width "0 0 0 0px",
-  :border-color (hsl 0 0 80),
+  :border-width "0 0 0 1px",
+  :padding "8px 0 0px 8px",
+  :border-color (hsl 200 70 80),
   :display "flex",
+  :border-radius "16px",
   :flex-direction "column",
-  :margin "8px 0"})
+  :margin "0px 0"})
 
 (def style-button
- {:color (hsl 0 0 70),
-  :background-color (hsl 80 80 90),
+ {:line-height 1,
+  :color (hsl 0 0 90),
+  :font-size "10px",
+  :background-color (hsl 0 0 100),
   :outline "none",
   :border "none"})
 
-(def style-input
- {:line-height 2,
-  :text-align "center",
-  :font-size "16px",
-  :background-color (hsl 0 0 96),
-  :padding "0 8px",
-  :outline "none",
-  :border "none"})
+(defn style-input [text]
+  {:line-height 1.6,
+   :color (hsl 0 0 60),
+   :text-align "left",
+   :font-size "14px",
+   :background-color (hsl 200 80 100),
+   :width (max 80 (+ 16 (meature-width text "16px" "Verdana"))),
+   :padding "0 8px",
+   :outline "none",
+   :border "none",
+   :font-family "Verdana"})
+
+(def style-toolbar {:padding "0 8px"})
 
 (defn handle-add [path] (fn [e dispatch] (dispatch :leaf/add path)))
 
@@ -48,20 +58,9 @@
         (div
           {}
           (input
-            {:style style-input,
+            {:style (style-input (:text leaf)),
              :event {:input (handle-input path)},
-             :attrs {:value (:text leaf)}})
-          (if (> (count path) 1)
-            (comment
-              button
-              {:style style-button,
-               :event {:click (handle-rm path)},
-               :attrs {:inner-text "rm"}}))
-          (comment
-            button
-            {:style style-button,
-             :event {:click (handle-add path)},
-             :attrs {:inner-text "add"}})))
+             :attrs {:value (:text leaf)}})))
       (div
         {:style style-list}
         (div
@@ -75,6 +74,17 @@
                    (comp-leaf
                      child-leaf
                      (conj path :children (:id child-leaf)))])))
-            (into (sorted-map))))))))
+            (into (sorted-map))))
+        (div
+          {:style style-toolbar}
+          (button
+            {:style style-button,
+             :event {:click (handle-add path)},
+             :attrs {:inner-text "add"}})
+          (if (> (count path) 1)
+            (button
+              {:style style-button,
+               :event {:click (handle-rm path)},
+               :attrs {:inner-text "rm"}})))))))
 
 (def comp-leaf (create-comp :leaf render))
