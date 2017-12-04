@@ -1,5 +1,5 @@
 
-(ns unfolding-leaf.util.shortid)
+(ns unfolding-leaf.util.shortid )
 
 (defonce id-counter (atom 0))
 
