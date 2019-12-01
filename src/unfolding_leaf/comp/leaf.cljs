@@ -7,6 +7,8 @@
 
 (defn handle-add [path] (fn [e dispatch] (dispatch :leaf/add path)))
 
+(defn handle-input [path] (fn [e dispatch] (dispatch :leaf/text [path (:value e)])))
+
 (defn handle-rm [path] (fn [e dispatch] (dispatch :leaf/rm path)))
 
 (def style-button
@@ -16,21 +18,6 @@
    :background-color (hsl 0 0 100),
    :font-size "10px",
    :line-height 1})
-
-(def style-list
-  {:display "flex",
-   :flex-direction "column",
-   :align-items "flex-start",
-   :border-color (hsl 200 70 80),
-   :border-style "solid",
-   :border-width "0 0 0 1px",
-   :margin "0px 0",
-   :border-radius "16px",
-   :padding "8px 0 0px 8px"})
-
-(defn handle-input [path] (fn [e dispatch] (dispatch :leaf/text [path (:value e)])))
-
-(def style-toolbar {:padding "0 8px"})
 
 (defn style-input [text]
   {:font-size "14px",
@@ -45,6 +32,19 @@
    :width (max 80 (+ 16 (meature-width text "16px" "Verdana")))})
 
 (def style-leaf {:display "flex", :align-items "center"})
+
+(def style-list
+  {:display "flex",
+   :flex-direction "column",
+   :align-items "flex-start",
+   :border-color (hsl 200 70 80),
+   :border-style "solid",
+   :border-width "0 0 0 1px",
+   :margin "0px 0",
+   :border-radius "16px",
+   :padding "8px 0 0px 8px"})
+
+(def style-toolbar {:padding "0 8px"})
 
 (defcomp
  comp-leaf
