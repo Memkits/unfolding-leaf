@@ -4,27 +4,18 @@
   "description": "Stack Workflow",
   "main": "index.js",
   "scripts": {
-    "cdn": "rsync -avr --progress dist/* tiye.me:cdn/unfolding-leaf",
-    "tiye": "rsync -avr --progress dist/{index.html,manifest.json} tiye.me:repo/Memkits/unfolding-leaf/",
-    "upload": "yarn cdn && yarn tiye",
-    "release": "shadow-cljs release browser",
-    "watch": "shadow-cljs watch browser",
-    "compile-ssr": "shadow-cljs compile ssr",
-    "html-dev": "env=dev node target/ssr.js && cp entry/manifest.json target/",
-    "html": "node target/ssr.js && cp entry/manifest.json dist/",
-    "index.html": "yarn compile-ssr && yarn html-dev",
-    "del": "rm -rf dist/*",
-    "serve": "http-server dist -s",
-    "build": "yarn del && yarn release && yarn compile-ssr && yarn html"
   },
   "repository": {
     "type": "git",
     "url": "git@github.com:Memkits/unfolding-leaf.git"
   },
   "author": "jiyinyiyong",
+  "dependencies": {
+    "@calcit/procs": "^0.4.16"
+  },
   "license": "MIT",
   "devDependencies": {
-    "http-server": "^0.10.0",
-    "shadow-cljs": "^2.0.114"
+    "bottom-tip": "^0.1.2",
+    "vite": "^2.4.4"
   }
 }
