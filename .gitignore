@@ -1,4 +1,7 @@
 
-/target/
-/dist
-/node_modules
+.compact-inc.cirru
+.calcit-error.cirru
+
+js-out/
+node_modules/
+dist/
