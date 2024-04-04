@@ -15,6 +15,6 @@
   "license": "MIT",
   "devDependencies": {
     "bottom-tip": "^0.1.5",
-    "vite": "^4.5.2"
+    "vite": "^4.5.3"
   }
 }
