@@ -10,8 +10,8 @@ permissions:
   contents: read
 
 concurrency:
-  group: upload-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: true
+  group: cos-upload-${{ github.repository }}-${{ github.event_name == 'pull_request' && 'pr' || 'production' }}
+  cancel-in-progress: false
 
 jobs:
   test:
@@ -24,6 +24,7 @@ jobs:
     - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
       with:
         node-version: 24
+        package-manager-cache: false
 
     - name: Enable Corepack
       run: |
@@ -38,14 +39,20 @@ jobs:
 
     - name: Install and validate
       run: |
-        # Published Respo packages currently request different compatible alpha
-        # releases, so use deterministic non-strict highest-version resolution.
-        caps --ci
+        set -euo pipefail
+        caps --ci --strict
         yarn install --immutable
         caps verify --toolchain
+        test "$(calcit --version)" = "0.27.0"
+        test -f calcit.cirru
+        test -f deps.cirru
+        test ! -e compact.cirru
+        test ! -e package.cirru
         calcit calcit.cirru edit format
         git diff --exit-code -- calcit.cirru
         calcit calcit.cirru --check-only
+        calcit calcit.cirru fix --workflow strict --verify --format edn
+        calcit calcit.cirru analyze check-public --ns unfolding-leaf.comp.container --ns unfolding-leaf.comp.leaf --ns unfolding-leaf.main --ns unfolding-leaf.schema --ns unfolding-leaf.updater --ns unfolding-leaf.updater.leaf --ns unfolding-leaf.util.width --summary-only --format json
         calcit calcit.cirru test --require-match
         calcit calcit.cirru analyze deprecated --summary-only --format json
 
@@ -54,6 +61,7 @@ jobs:
       env:
         CDN_ORIGIN: https://cos-sh.tiye.me
       run: |
+        set -euo pipefail
         if [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
           asset_prefix="${GITHUB_REPOSITORY}/pr/"
         else
@@ -66,8 +74,11 @@ jobs:
 
     - name: Build client with CDN asset URLs
       run: |
+        set -euo pipefail
         calcit calcit.cirru js
         yarn build
+        node --test scripts/*.test.mjs
+        node scripts/check-cdn-path.mjs
 
     - name: Check COS credentials
       id: cos-credentials
