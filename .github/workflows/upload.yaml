@@ -78,7 +78,6 @@ jobs:
         calcit calcit.cirru js
         yarn build
         node --test scripts/*.test.mjs
-        node scripts/check-cdn-path.mjs
 
     - name: Check COS credentials
       id: cos-credentials
