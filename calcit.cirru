@@ -5,7 +5,7 @@
   :entries $ {} $ :default
     {} (:description |) (:init-fn 'unfolding-leaf.main/main!) (:mode :js) (:reload-fn 'unfolding-leaf.main/reload!) (:target :browser)
       :feature-policy $ {}
-      :modules $ [] |respo.calcit/ |lilac/ |memof/ |respo-ui.calcit/ |respo-markdown.calcit/ |reel.calcit/ |js-ffi/
+      :modules $ [] |respo.calcit/ |respo-ui.calcit/ |reel.calcit/ |js-ffi/
       :type-slots $ {} $ :dispatch-op |unfolding-leaf.schema/Op
   :files $ {}
     'unfolding-leaf.comp.container $ %{} 'FileEntry
@@ -189,50 +189,6 @@
             [] unfolding-leaf.schema :as schema
             [] reel.core :refer $ [] reel-updater refresh-reel
             [] reel.schema :as reel-schema
-    'unfolding-leaf.render $ %{} 'FileEntry
-      :defs $ {}
-        'base-info $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ def base-info
-            {} (:title "|Unfolding leaf") (:icon |http://cdn.tiye.me/logo/memkits.png) (:ssr nil) (:inline-html nil)
-              :inline-styles $ [] $ slurp |./entry/main.css
-          :examples $ []
-        'dev-page $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defn dev-page ()
-            make-page | $ merge base-info $ {}
-              :styles $ [] |http://localhost:8100/main.css
-              :scripts $ [] |/browser/lib.js |/browser/main.js
-          :examples $ []
-        'main! $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defn main! ()
-            if (= js/process.env.env |dev)
-              spit |target/index.html $ dev-page
-              spit |dist/index.html $ prod-page
-          :examples $ []
-        'preview? $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ def preview? (= |preview js/process.env.prod)
-          :examples $ []
-        'prod-page $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defn prod-page ()
-            let
-                reel $ -> reel-schema/reel (assoc :base schema/store) (assoc :store schema/store)
-                html-content $ make-string $ comp-container reel
-                assets $ read-string $ slurp |dist/assets.edn
-                cdn $ if preview? | |http://cdn.tiye.me/unfolding-leaf/
-                prefix-cdn $ fn (x) (str cdn x)
-              make-page html-content $ merge base-info $ {}
-                :styles $ [] |http://cdn.tiye.me/favored-fonts/main.css
-                :scripts $ map ("#()" -> % :output-name prefix-cdn) assets
-                :ssr |respo-ssr
-          :examples $ []
-      :ns $ %{} 'NsEntry (:doc |)
-        :code $ quote $ ns unfolding-leaf.render
-          :require
-            [] respo.render.html :refer $ [] make-string
-            [] shell-page.core :refer $ [] make-page spit slurp
-            [] unfolding-leaf.comp.container :refer $ [] comp-container
-            [] unfolding-leaf.schema :as schema
-            [] reel.schema :as reel-schema
-            [] cljs.reader :refer $ [] read-string
     'unfolding-leaf.schema $ %{} 'FileEntry
       :defs $ {}
         'Op $ %{} 'CodeEntry (:doc |)

@@ -2,6 +2,8 @@
 .calcit-inc.cirru
 .compact-inc.cirru
 .calcit-error.cirru
+compact.cirru
+package.cirru
 .DS_Store
 
 js-out/
