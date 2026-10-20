@@ -14,7 +14,9 @@
           :code $ quote $ defcomp comp-container (reel)
             let
                 store $ :store reel
-                leaf $ -> (get store :leaf) .unwrap
+                leaf $ decode-map-as
+                  -> (get store :leaf) .unwrap
+                  :: 'Map 'Tag 'Dynamic
               div ({})
                 comp-leaf leaf $ [] :leaf
           :examples $ []
@@ -32,9 +34,8 @@
         'comp-leaf $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-leaf (leaf path)
             let
-                leaf-map $ decode-map-as leaf $ :: 'Map 'Tag 'Dynamic
                 leaf-text $ decode-map-as
-                  -> (get leaf-map :text) (.unwrap-or |)
+                  -> (get leaf :text) (.unwrap-or |)
                   , 'String
               div
                 {} $ :style style-leaf
@@ -47,19 +48,17 @@
                   list-> ({})
                     ->
                       decode-map-as
-                        -> (get leaf-map :children)
+                        -> (get leaf :children)
                           .unwrap-or $ {}
                         :: 'Map 'Dynamic 'Dynamic
                       .to-list
                       map $ fn (entry)
-                        let[] (k child-leaf) entry $ [] k $ comp-leaf child-leaf
-                          conj path :children $ decode-map-as
-                            ->
-                              get
-                                decode-map-as child-leaf $ :: 'Map 'Tag 'Dynamic
-                                , :id
-                              , .unwrap
-                            , 'String
+                        let[] (k child-leaf) entry $ let
+                            child-map $ decode-map-as child-leaf $ :: 'Map 'Tag 'Dynamic
+                          [] k $ comp-leaf child-map $ conj path :children
+                            decode-map-as
+                              -> (get child-map :id) .unwrap
+                              , 'String
                   div
                     {} $ :style style-toolbar
                     button $ {} (:inner-text |add) (:style style-button)
@@ -70,7 +69,7 @@
                         :on $ {} $ :click (handle-rm path)
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'respo.schema/Component)
-            :args $ [] 'Dynamic $ :: 'List 'Dynamic
+            :args $ [] (:: 'Map 'Tag 'Dynamic) (:: 'List 'Dynamic)
         'handle-add $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn handle-add (path)
             fn (e d!)

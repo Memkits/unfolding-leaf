@@ -32,6 +32,8 @@ Reel 使用 `State<Op,Map<Tag,Dynamic>>`；Op 的 payload 明确为原 List 结�
 移除伪 assert-type，不用 unsafe；事件 handler 用明确可调用合同，而非把
 EventHandler 导出值当作类型证明。实际 Respo 事件为 Map，保留原 Map 测试输入。
 根 dispatcher 仍是开放入口，先检查为具名 Op，再进入 typed Reel。
+递归组件参数明确为 Map；每个子节点的 Map 检查只做一次，随后复用于 id
+读取与递归渲染，不在每层重复解码相同值。
 
 CI 检查 all-defs、完整 strict 和原七 namespace 公开定义，保留原 1 项定义测试
 及 4 项 JS 业务回归，不新增脚本、测试套件或基线。本地分别通过 152/152、
