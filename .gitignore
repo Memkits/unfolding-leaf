@@ -2,6 +2,7 @@
 .calcit-inc.cirru
 .compact-inc.cirru
 .calcit-error.cirru
+.calcit/
 compact.cirru
 package.cirru
 .DS_Store

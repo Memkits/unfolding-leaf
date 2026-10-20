@@ -13,29 +13,29 @@
         %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-container (reel)
             let
-                store $ assert-type
-                  -> (get reel :store) .unwrap
-                  :: 'Map 'Tag 'Dynamic
+                store $ :store reel
                 leaf $ -> (get store :leaf) .unwrap
               div ({})
                 comp-leaf leaf $ [] :leaf
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'respo.schema/Component)
-            :args $ [] $ :: 'Map 'Tag 'Dynamic
+            :args $ [] $ :: 'reel.typed/State 'unfolding-leaf.schema/Op (:: 'Map 'Tag 'Dynamic)
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns unfolding-leaf.comp.container
           :require
-            [] hsl.core :refer $ [] hsl
-            [] respo.core :refer $ [] defcomp cursor-> div span <>
-            [] respo.comp.inspect :refer $ [] comp-inspect
-            [] unfolding-leaf.comp.leaf :refer $ [] comp-leaf
+            hsl.core :refer $ hsl
+            respo.core :refer $ defcomp cursor-> div span <>
+            respo.comp.inspect :refer $ comp-inspect
+            unfolding-leaf.comp.leaf :refer $ comp-leaf
     'unfolding-leaf.comp.leaf $ %{} 'FileEntry
       :defs $ {}
         'comp-leaf $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-leaf (leaf path)
             let
-                leaf-map $ assert-type leaf $ :: 'Map 'Tag 'Dynamic
-                leaf-text $ -> (get leaf-map :text) (.unwrap-or |)
+                leaf-map $ decode-map-as leaf $ :: 'Map 'Tag 'Dynamic
+                leaf-text $ decode-map-as
+                  -> (get leaf-map :text) (.unwrap-or |)
+                  , 'String
               div
                 {} $ :style style-leaf
                 div ({})
@@ -46,17 +46,20 @@
                   {} $ :style style-list
                   list-> ({})
                     ->
-                      assert-type
+                      decode-map-as
                         -> (get leaf-map :children)
                           .unwrap-or $ {}
                         :: 'Map 'Dynamic 'Dynamic
                       .to-list
                       map $ fn (entry)
-                        let-sugar
-                              [] k child-leaf
-                              , entry
-                          [] k $ comp-leaf child-leaf $ conj path :children
-                            -> (get child-leaf :id) .unwrap
+                        let[] (k child-leaf) entry $ [] k $ comp-leaf child-leaf
+                          conj path :children $ decode-map-as
+                            ->
+                              get
+                                decode-map-as child-leaf $ :: 'Map 'Tag 'Dynamic
+                                , :id
+                              , .unwrap
+                            , 'String
                   div
                     {} $ :style style-toolbar
                     button $ {} (:inner-text |add) (:style style-button)
@@ -71,25 +74,60 @@
         'handle-add $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn handle-add (path)
             fn (e d!)
+              hint-fn $ {}
+                :args $ [] (:: 'Map 'Tag 'Dynamic)
+                  :: 'Fn $ {}
+                    :args $ [] 'unfolding-leaf.schema/Op
+                    :return 'Unit
+                :return 'Unit
               d! $ Op :leaf/add path
+              , &unit
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'respo.schema/EventHandler)
+          :schema $ :: 'Fn $ {}
             :args $ [] $ :: 'List 'Dynamic
+            :return $ :: 'Fn $ {} (:return 'Unit)
+              :args $ [] (:: 'Map 'Tag 'Dynamic)
+                :: 'Fn $ {} (:return 'Unit)
+                  :args $ [] 'unfolding-leaf.schema/Op
         'handle-input $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn handle-input (path)
             fn (e d!)
+              hint-fn $ {}
+                :args $ [] (:: 'Map 'Tag 'Dynamic)
+                  :: 'Fn $ {}
+                    :args $ [] 'unfolding-leaf.schema/Op
+                    :return 'Unit
+                :return 'Unit
               d! $ Op :leaf/text $ [] path
-                -> (get e :value) .unwrap
+                decode-map-as
+                  -> (get e :value) .unwrap
+                  , 'String
+              , &unit
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'respo.schema/EventHandler)
+          :schema $ :: 'Fn $ {}
             :args $ [] $ :: 'List 'Dynamic
+            :return $ :: 'Fn $ {} (:return 'Unit)
+              :args $ [] (:: 'Map 'Tag 'Dynamic)
+                :: 'Fn $ {} (:return 'Unit)
+                  :args $ [] 'unfolding-leaf.schema/Op
         'handle-rm $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn handle-rm (path)
             fn (e d!)
+              hint-fn $ {}
+                :args $ [] (:: 'Map 'Tag 'Dynamic)
+                  :: 'Fn $ {}
+                    :args $ [] 'unfolding-leaf.schema/Op
+                    :return 'Unit
+                :return 'Unit
               d! $ Op :leaf/rm path
+              , &unit
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'respo.schema/EventHandler)
+          :schema $ :: 'Fn $ {}
             :args $ [] $ :: 'List 'Dynamic
+            :return $ :: 'Fn $ {} (:return 'Unit)
+              :args $ [] (:: 'Map 'Tag 'Dynamic)
+                :: 'Fn $ {} (:return 'Unit)
+                  :args $ [] 'unfolding-leaf.schema/Op
         'style-button $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def style-button
             {} (:outline |none) (:border |none)
@@ -130,28 +168,34 @@
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns unfolding-leaf.comp.leaf
           :require
-            [] respo.core :refer $ [] defcomp list-> div span input button
-            [] respo-ui.core :refer $ [] hsl
-            [] unfolding-leaf.schema :refer $ [] Op
-            [] unfolding-leaf.util.width :refer $ [] meature-width
+            respo.core :refer $ defcomp list-> div span input button
+            respo-ui.core :refer $ hsl
+            unfolding-leaf.schema :refer $ Op
+            unfolding-leaf.util.width :refer $ meature-width
     'unfolding-leaf.main $ %{} 'FileEntry
       :defs $ {}
         '*reel $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defatom *reel
-            -> reel-schema/reel (assoc :base schema/store) (assoc :store schema/store)
+          :code $ quote $ defref *reel (typed-reel/new-reel schema/store)
           :examples $ []
+          :schema $ :: 'Ref $ :: 'reel.typed/State 'unfolding-leaf.schema/Op (:: 'Map 'Tag 'Dynamic)
         'dispatch! $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defn dispatch! (op)
+          :code $ quote $ defn dispatch! (raw)
             let
-                next-reel $ assert-type (reel-updater updater @*reel op) (:: 'Map 'Tag 'Dynamic)
-              reset! *reel next-reel
+                op $ decode-map-as raw 'unfolding-leaf.schema/Op
+              reset! *reel $ typed-reel/record-op updater @*reel op (generate-id!) (host/now-ms)
+            , &unit
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Unit)
-            :args $ [] 'unfolding-leaf.schema/Op
-            :features $ #{} :js-ffi
+            :args $ [] 'Dynamic
         'main! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn main! () (render-app!)
-            add-watch *reel :changes $ fn (r p) (render-app!)
+            add-watch! *reel :changes $ fn (r p)
+              hint-fn $ {}
+                :args $ []
+                  :: 'reel.typed/State 'unfolding-leaf.schema/Op $ :: 'Map 'Tag 'Dynamic
+                  :: 'reel.typed/State 'unfolding-leaf.schema/Op $ :: 'Map 'Tag 'Dynamic
+                :return 'Unit
+              render-app!
             println "|App started."
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Unit)
@@ -159,14 +203,17 @@
             :features $ #{} :js-ffi
         'mount-target $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn mount-target ()
-            -> (js-ffi.browser/query-selector |.app) .unwrap
+            let
+                document-host $ js-cast js/document 'respo.dom/DomDocument
+              document-host .query-selector |.app
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'js-ffi.browser/DomElementHost)
+          :schema $ :: 'Fn $ {}
             :args $ []
             :features $ #{} :js-ffi
+            :return $ :: 'JsNullish 'respo.dom/DomElement
         'reload! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn reload! () (clear-cache!)
-            reset! *reel $ assert-type (refresh-reel @*reel schema/store updater) (:: 'Map 'Tag 'Dynamic)
+            reset! *reel $ typed-reel/refresh updater @*reel schema/store
             render-app!
             println "|Code updated."
           :examples $ []
@@ -183,16 +230,19 @@
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns unfolding-leaf.main
           :require
-            [] respo.core :refer $ [] render! clear-cache!
-            [] unfolding-leaf.comp.container :refer $ [] comp-container
-            [] unfolding-leaf.updater :refer $ [] updater
-            [] unfolding-leaf.schema :as schema
-            [] reel.core :refer $ [] reel-updater refresh-reel
-            [] reel.schema :as reel-schema
+            respo.core :refer $ render! clear-cache!
+            unfolding-leaf.comp.container :refer $ comp-container
+            unfolding-leaf.updater :refer $ updater
+            unfolding-leaf.schema :as schema
+            reel.typed :as typed-reel
+            js-ffi.shared :as host
     'unfolding-leaf.schema $ %{} 'FileEntry
       :defs $ {}
         'Op $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defenum Op (:leaf/add 'Dynamic) (:leaf/text 'Dynamic) (:leaf/rm 'Dynamic)
+          :code $ quote $ defenum Op
+            :leaf/add $ :: 'List 'Dynamic
+            :leaf/text $ :: 'List 'Dynamic
+            :leaf/rm $ :: 'List 'Dynamic
           :examples $ []
           :schema $ :: 'EnumDef
         'leaf $ %{} 'CodeEntry (:doc |)
@@ -200,10 +250,12 @@
             {} (:id nil) (:text |)
               :children $ {}
           :examples $ []
+          :schema $ :: 'Map 'Tag 'Dynamic
         'store $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def store
             {} $ :leaf leaf
           :examples $ []
+          :schema $ :: 'Map 'Tag 'Dynamic
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns unfolding-leaf.schema
     'unfolding-leaf.updater $ %{} 'FileEntry
@@ -217,7 +269,7 @@
               _ $ do (eprintln "|Unknown op:" op) db
           :examples $ []
           :schema $ :: 'Fn $ {}
-            :args $ [] (:: 'Map 'Tag 'Dynamic) 'unfolding-leaf.schema/Op 'Dynamic 'Dynamic
+            :args $ [] (:: 'Map 'Tag 'Dynamic) 'unfolding-leaf.schema/Op 'String 'Number
             :return $ :: 'Map 'Tag 'Dynamic
           :tests $ [] $ %{} 'TestEntry (:name |nominal-leaf-operations)
             :code $ quote $ let
@@ -244,42 +296,49 @@
               assert= initial removed
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns unfolding-leaf.updater
-          :require ([] unfolding-leaf.updater.leaf :as leaf)
-            [] unfolding-leaf.schema :refer $ [] Op
+          :require (unfolding-leaf.updater.leaf :as leaf)
+            unfolding-leaf.schema :refer $ Op
     'unfolding-leaf.updater.leaf $ %{} 'FileEntry
       :defs $ {}
         'add $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn add (db op-data op-id op-time)
-            let
-                child-path $ conj op-data :children op-id
-                new-leaf $ assoc schema/leaf :id op-id
-              -> db $ assoc-in child-path new-leaf
+            decode-map-as
+              let
+                  child-path $ conj op-data :children op-id
+                  new-leaf $ assoc schema/leaf :id op-id
+                -> db $ assoc-in child-path new-leaf
+              :: 'Map 'Tag 'Dynamic
           :examples $ []
           :schema $ :: 'Fn $ {}
-            :args $ [] (:: 'Map 'Tag 'Dynamic) (:: 'List 'Dynamic) 'Dynamic 'Dynamic
+            :args $ [] (:: 'Map 'Tag 'Dynamic) (:: 'List 'Dynamic) 'String 'Number
             :return $ :: 'Map 'Tag 'Dynamic
         'rm $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defn rm (db op-data op-id op-time) (dissoc-in db op-data)
+          :code $ quote $ defn rm (db op-data op-id op-time)
+            decode-map-as (dissoc-in db op-data) (:: 'Map 'Tag 'Dynamic)
           :examples $ []
           :schema $ :: 'Fn $ {}
-            :args $ [] (:: 'Map 'Tag 'Dynamic) (:: 'List 'Dynamic) 'Dynamic 'Dynamic
+            :args $ [] (:: 'Map 'Tag 'Dynamic) (:: 'List 'Dynamic) 'String 'Number
             :return $ :: 'Map 'Tag 'Dynamic
         'text $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn text (db op-data op-id op-time)
-            let
-                path $ assert-type
-                  -> (first op-data) .unwrap
-                  :: 'List 'Dynamic
-                value $ -> (last op-data) .unwrap
-                text-path $ conj path :text
-              assoc-in db text-path value
+            decode-map-as
+              let
+                  path $ decode-map-as
+                    -> (first op-data) .unwrap
+                    :: 'List 'Dynamic
+                  value $ decode-map-as
+                    -> (last op-data) .unwrap
+                    , 'String
+                  text-path $ conj path :text
+                assoc-in db text-path value
+              :: 'Map 'Tag 'Dynamic
           :examples $ []
           :schema $ :: 'Fn $ {}
-            :args $ [] (:: 'Map 'Tag 'Dynamic) (:: 'List 'Dynamic) 'Dynamic 'Dynamic
+            :args $ [] (:: 'Map 'Tag 'Dynamic) (:: 'List 'Dynamic) 'String 'Number
             :return $ :: 'Map 'Tag 'Dynamic
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns unfolding-leaf.updater.leaf
-          :require $ [] unfolding-leaf.schema :as schema
+          :require $ unfolding-leaf.schema :as schema
     'unfolding-leaf.util.width $ %{} 'FileEntry
       :defs $ {} $ 'meature-width
         %{} 'CodeEntry (:doc |)
