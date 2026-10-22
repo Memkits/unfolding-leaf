@@ -53,11 +53,6 @@ jobs:
         git diff --exit-code -- calcit.cirru
         calcit calcit.cirru --check-only --all-defs
         calcit calcit.cirru fix --workflow strict --verify --format json
-        calcit calcit.cirru --check-only \
-          --ns unfolding-leaf.comp.container --ns unfolding-leaf.comp.leaf \
-          --ns unfolding-leaf.main --ns unfolding-leaf.schema \
-          --ns unfolding-leaf.updater --ns unfolding-leaf.updater.leaf \
-          --ns unfolding-leaf.util.width --summary-only --format json
         calcit calcit.cirru test --require-match
 
     - name: Select CDN asset path

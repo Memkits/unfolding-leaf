@@ -6,7 +6,15 @@ A very simple mind map toolkit in Respo.
 
 Demo http://repo.tiye.me/Memkits/unfolding-leaf/
 
-Use paired Calcit / `@calcit/procs` 0.30.1-alpha.5 and `caps --ci --strict`. The canonical sources are
+### 使用者影响：正式 Calcit 0.30.1 配对
+
+CLI与 `@calcit/procs` 一起升级到正式 **0.30.1**，同步正式Reel0.6.41、UI0.8.0、
+Respo0.16.124（传递JS-FFI0.2.5、Router0.8.37）。请重新安装完整依赖图、生成JS并刷新，
+不混用旧alpha缓存。本次不改Snapshot、节点Map/路径协议、递归编辑和根节点行为，不新增存储。
+CI以原all-defs保留全部定义覆盖，删除重复namespace清单；完整strict、原测试和COS内置verify保留，
+不新增验证脚本、concurrently或预算，也不改变原前端/服务器路径。PR只预览，不自动部署生产。
+
+Use paired formal Calcit / `@calcit/procs` 0.30.1 and `caps --ci --strict`. The canonical sources are
 `calcit.cirru` and `deps.cirru`; retired `compact.cirru` and `package.cirru`
 snapshots are ignored and rejected by CI. Generated-JavaScript node editing
 regressions run with `node --test scripts/*.test.mjs` after compilation.
@@ -16,16 +24,15 @@ no extra CDN checker is needed. Existing server deployment paths remain unchange
 The unused Webpack/shell-page renderer has been retired: `index.html` and Vite
 are the active page build, with no `dist/assets.edn` or separate SSR build entry.
 
-CI 使用正式 COS action v1.2.0 内置生成 HTML 资源引用及公开字节/SHA-256 校验，删除重复 CDN 构建测试。严格 Caps、工具链一致性、规范快照、严格入口、七个业务 namespace 公开检查、原定义测试和四项节点编辑/递归渲染业务回归保留，不另加验证脚本或测试。
+CI 使用正式 COS action v1.2.0 内置生成 HTML 资源引用及公开字节/SHA-256 校验，删除重复 CDN 构建测试。严格 Caps、工具链一致性、规范快照、all-defs、完整strict、原定义测试和四项节点编辑/递归渲染业务回归保留，不另加验证脚本或测试。
 
 `yarn build`/`yarn dev` 均先编译一次再运行 Vite，实时编译另开终端运行 `calcit -w js`，无需 concurrently。PR 资源按 PR/run/attempt 隔离，同 PR/生产串行 `queue: max` 排队；原生产与服务器路径、节点 Map 格式和路径协议保持不变。
 
-### 0.30.1 候选迁移
+### 历史：0.30.1-alpha.5 源码迁移
 
 保留新增、编辑、递归子节点及删除行为，根节点的 nil id 和不提供根删除按钮的
-行为不变；不新增存储、网络服务或布局功能。正式 0.30.1 release 尚无 CLI 资产，
-因此明确使用完成发布的配对候选。Respo 0.16.122、Reel 0.6.39、UI 0.7.41
-均为正式模块 tag，移除旧 alpha 模块引用。
+行为不变；不新增存储、网络服务或布局功能。该历史迁移使用alpha.5配对，
+Respo0.16.122、Reel0.6.39、UI0.7.41模块图；当前正式图见本文开头，以下历史验收不冒充本轮结果。
 
 Reel 使用 `State<Op,Map<Tag,Dynamic>>`；Op 的 payload 明确为原 List 结构，
 操作 id/time 为 String/Number。文本、路径与路径更新结果在真实边界解码，
