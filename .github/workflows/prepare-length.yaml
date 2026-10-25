@@ -1,0 +1,64 @@
+name: Protected Unfolding Leaf length migration
+on:
+  push:
+    branches: [prepare/unfolding-length-0301]
+permissions:
+  contents: read
+jobs:
+  prepare:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v6.5.0
+        with:
+          node-version: 24
+          package-manager-cache: false
+      - uses: calcit-lang/setup-calcit@v1.5.0
+        with:
+          tools: calcit,caps
+          deps-file: deps.cirru
+          caps-version: "0.1.1"
+      - name: Original dependencies
+        run: |
+          set -euo pipefail
+          corepack enable
+          corepack prepare yarn@4.18.0 --activate
+          caps --strict --ci
+          yarn install --immutable
+          caps verify --toolchain
+          test "$(calcit -v)" = 0.30.1
+          test ! -e compact.cirru
+          test ! -e package.cirru
+          mkdir -p acceptance
+      - name: Original full gates before and after exact source transaction
+        run: |
+          set -euo pipefail
+          for phase in before after; do
+            if [[ "$phase" == after ]]; then node prepare-length.mjs apply; fi
+            original_blob="$(git hash-object calcit.cirru)"
+            calcit edit format
+            test "$(git hash-object calcit.cirru)" = "$original_blob"
+            calcit --check-only --all-defs --format json > "acceptance/${phase}-all-defs.json"
+            calcit fix --workflow strict --verify --format json > "acceptance/${phase}-strict.json"
+            jq -e '.data.workflow.status == "passed" and .diagnostics == []' "acceptance/${phase}-strict.json"
+            calcit test --require-match --format json > "acceptance/${phase}-native.json"
+            VITE_BASE_URL=./ yarn build
+            node --test scripts/*.test.mjs > "acceptance/${phase}-node-tests.log"
+            find js-out -type f -print0 | sort -z | xargs -0 sha256sum > "acceptance/${phase}-js.sha256"
+          done
+          node prepare-length.mjs verify
+      - uses: actions/upload-artifact@v7.0.2
+        if: success()
+        with:
+          name: accepted-source
+          path: calcit.cirru
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v7.0.2
+        if: always()
+        with:
+          name: diagnostics
+          path: acceptance/
+          if-no-files-found: warn
