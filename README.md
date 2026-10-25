@@ -49,6 +49,18 @@ CI 检查 all-defs、完整 strict 和原七 namespace 公开定义，保留原 
 递归树 schema。中文/emoji 的显示宽度仍受原 8px 估算影响，见 [#43](https://github.com/Memkits/unfolding-leaf/issues/43)，
 输入值未丢失。诊断中的历史迁移桥提示已报告 [Calcit #2211](https://github.com/calcit-lang/calcit/issues/2211)。
 
+### 长度调用整理
+
+两处已明确为 List/String 的计数改用首选 `.len`：递归组件的路径长度，
+以及 `meature-width` 中原 `str(text)` 的字符串字符数。保留开放 text 参数、
+原转换、8px 估算、根节点删除规则、节点 Map/路径协议和所有类型合同。
+这不修复 [#43](https://github.com/Memkits/unfolding-leaf/issues/43) 的中文/emoji 显示宽度问题。
+CLI/procs、模块、lock、原测试、`hud!` 和部署路径不变。
+正式 Linux 0.30.1 准备 CI 在改写前后均通过原完整 strict、1 项定义测试、
+4 项 Node 节点编辑/递归渲染回归和构建；107 个生成 JS 文件路径及逐文件
+SHA256 全部相同。临时迁移脚本不进入项目，不新增测试或重复上传验证。
+这些证据不是新的字体布局、移动端或 HMR 验收。
+
 ### Develop
 
 Based on https://github.com/calcit-lang/respo-calcit-workflow/

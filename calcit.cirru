@@ -64,7 +64,7 @@
                     button $ {} (:inner-text |add) (:style style-button)
                       :on $ {} $ :click (handle-add path)
                     if
-                      > (count path) 1
+                      > (.len path) 1
                       button $ {} (:inner-text |rm) (:style style-button)
                         :on $ {} $ :click (handle-rm path)
           :examples $ []
@@ -342,7 +342,7 @@
       :defs $ {} $ 'meature-width
         %{} 'CodeEntry (:doc |)
           :code $ quote $ defn meature-width (text font-size font-family)
-            * 8 $ count $ str text
+            * 8 $ .len $ str text
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Number)
             :args $ [] 'Dynamic 'String 'String
