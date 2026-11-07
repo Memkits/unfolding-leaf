@@ -6,7 +6,11 @@ A very simple mind map toolkit in Respo.
 
 Demo http://repo.tiye.me/Memkits/unfolding-leaf/
 
-### 使用者影响：正式 Calcit 0.30.1 配对
+### 当前版本
+
+使用正式 Calcit 和 `@calcit/procs` 0.37.0，升级后重新安装依赖并构建。文本编辑事件现在分别传递路径和字符串，原有 `:leaf/text` 列表事件仍可使用。
+
+### 历史：正式 Calcit 0.30.1 配对
 
 CLI与 `@calcit/procs` 一起升级到正式 **0.30.1**，同步正式Reel0.6.41、UI0.8.0、
 Respo0.16.124（传递JS-FFI0.2.5、Router0.8.37）。请重新安装完整依赖图、生成JS并刷新，
