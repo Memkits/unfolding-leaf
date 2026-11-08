@@ -33,11 +33,16 @@
     'unfolding-leaf.comp.leaf $ %{} 'FileEntry
       :defs $ {}
         'comp-leaf $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defcomp comp-leaf (leaf path)
+          :code $ quote $ defn comp-leaf (leaf path)
+            comp-node
+              decode-map-as (dissoc leaf :id) 'unfolding-leaf.schema/LeafView
+              , path
+          :examples $ []
+          :schema $ quote $ Fn (Map Tag Dynamic) (List unfolding-leaf.schema/PathKey) (-> respo.schema/Component)
+        'comp-node $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defcomp comp-node (leaf path)
             let
-                leaf-text $ decode-map-as
-                  -> (get leaf :text) (.unwrap-or |)
-                  , 'String
+                leaf-text $ .unwrap-or (:text leaf) |
               div
                 {} $ :style style-leaf
                 div ({})
@@ -48,18 +53,11 @@
                   {} $ :style style-list
                   list-> ({})
                     ->
-                      decode-map-as
-                        -> (get leaf :children)
-                          .unwrap-or $ {}
-                        Map Dynamic Dynamic
+                      .unwrap-or (:children leaf) ({})
                       .to-list
-                      map $ fn (entry)
-                        let[] (k child-leaf) entry $ let
-                            child-map $ decode-map-as child-leaf $ Map Tag Dynamic
-                          [] k $ comp-leaf child-map $ conj path :children
-                            decode-map-as
-                              -> (get child-map :id) .unwrap
-                              , 'String
+                      .map $ fn (entry)
+                        let[] (key child) entry $ [] key $ comp-node child
+                          conj path :children $ .unwrap $ :id child
                   div
                     {} $ :style style-toolbar
                     button $ {} (:inner-text |add) (:style style-button)
@@ -70,7 +68,7 @@
                         :on $ {} $ :click (handle-rm path)
                       Option :none
           :examples $ []
-          :schema $ quote $ Fn (Map Tag Dynamic) (List unfolding-leaf.schema/PathKey) (-> respo.schema/Component)
+          :schema $ quote $ Fn unfolding-leaf.schema/LeafView (List unfolding-leaf.schema/PathKey) (-> respo.schema/Component)
         'handle-add $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn handle-add (path)
             fn (e d!)
@@ -209,6 +207,13 @@
             js-ffi.shared :as host
     'unfolding-leaf.schema $ %{} 'FileEntry
       :defs $ {}
+        'LeafView $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defstruct LeafView
+            :id $ Option String
+            :text $ Option String
+            :children $ Option $ Map String unfolding-leaf.schema/LeafView
+          :examples $ []
+          :schema $ quote StructDef
         'Op $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defenum Op
             :leaf/add $ List unfolding-leaf.schema/PathKey
