@@ -8,7 +8,7 @@ Demo http://repo.tiye.me/Memkits/unfolding-leaf/
 
 ### 当前版本
 
-使用正式 Calcit 和 `@calcit/procs` 0.37.0，升级后重新安装依赖并构建。文本编辑事件现在分别传递路径和字符串，原有 `:leaf/text` 列表事件仍可使用。
+使用正式 Calcit 和 `@calcit/procs` 0.38.0，升级后重新安装依赖并构建。原节点 Map、路径和 `:leaf/text` 列表事件继续可用。渲染入口将节点树检查为递归的 `LeafView`，子节点递归渲染直接读取具名字段。
 
 ### 历史：正式 Calcit 0.30.1 配对
 
