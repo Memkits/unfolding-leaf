@@ -14,14 +14,12 @@
           :code $ quote $ defcomp comp-container (reel)
             let
                 store $ :store reel
-                leaf $ decode-map-as
-                  -> (get store :leaf) .unwrap
-                  Map Tag Dynamic
+                leaf $ .unwrap $ get store :leaf
               div ({})
                 comp-leaf leaf $ [] :leaf
           :examples $ []
           :schema $ quote $ Fn
-            reel.typed/State unfolding-leaf.schema/Op $ Map Tag Dynamic
+            reel.typed/State unfolding-leaf.schema/Op $ Map Tag $ Map Tag Dynamic
             -> respo.schema/Component
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns unfolding-leaf.comp.container
@@ -157,7 +155,7 @@
           :code $ quote $ defref *reel (typed-reel/new-reel schema/store)
           :examples $ []
           :schema $ quote $ Ref
-            reel.typed/State unfolding-leaf.schema/Op $ Map Tag Dynamic
+            reel.typed/State unfolding-leaf.schema/Op $ Map Tag $ Map Tag Dynamic
         'dispatch! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn dispatch! (op)
             reset! *reel $ typed-reel/record-op updater @*reel op (generate-id!) (host/now-ms)
@@ -168,8 +166,8 @@
           :code $ quote $ defn main! () (render-app!)
             add-watch! *reel :changes $ fn (r p)
               hint-fn $ Fn
-                reel.typed/State unfolding-leaf.schema/Op $ Map Tag Dynamic
-                reel.typed/State unfolding-leaf.schema/Op $ Map Tag Dynamic
+                reel.typed/State unfolding-leaf.schema/Op $ Map Tag $ Map Tag Dynamic
+                reel.typed/State unfolding-leaf.schema/Op $ Map Tag $ Map Tag Dynamic
                 -> Unit
               render-app!
             println "|App started."
@@ -240,7 +238,7 @@
           :code $ quote $ def store
             {} $ :leaf leaf
           :examples $ []
-          :schema $ quote $ Map Tag Dynamic
+          :schema $ quote $ Map Tag (Map Tag Dynamic)
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns unfolding-leaf.schema
     'unfolding-leaf.updater $ %{} 'FileEntry
@@ -260,8 +258,10 @@
               (:leaf/set-text path value) (leaf/text db path value)
               (:leaf/rm d) (leaf/rm db d op-id op-time)
           :examples $ []
-          :schema $ quote $ Fn (Map Tag Dynamic) unfolding-leaf.schema/Op String Number
-            -> $ Map Tag Dynamic
+          :schema $ quote $ Fn
+            Map Tag $ Map Tag Dynamic
+            , unfolding-leaf.schema/Op String Number
+              -> $ Map Tag $ Map Tag Dynamic
           :tests $ [] $ %{} 'TestEntry (:name |nominal-leaf-operations)
             :code $ quote $ let
                 initial $ {} $ :leaf
@@ -298,24 +298,34 @@
                   child-path $ conj op-data :children op-id
                   new-leaf $ assoc schema/leaf :id op-id
                 -> db $ assoc-in child-path new-leaf
-              Map Tag Dynamic
+              Map Tag $ Map Tag Dynamic
           :examples $ []
-          :schema $ quote $ Fn (Map Tag Dynamic) (List unfolding-leaf.schema/PathKey) String Number
-            -> $ Map Tag Dynamic
+          :schema $ quote $ Fn
+            Map Tag $ Map Tag Dynamic
+            List unfolding-leaf.schema/PathKey
+            , String Number
+              -> $ Map Tag $ Map Tag Dynamic
         'rm $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn rm (db op-data op-id op-time)
-            decode-map-as (dissoc-in db op-data) (Map Tag Dynamic)
+            decode-map-as (dissoc-in db op-data)
+              Map Tag $ Map Tag Dynamic
           :examples $ []
-          :schema $ quote $ Fn (Map Tag Dynamic) (List unfolding-leaf.schema/PathKey) String Number
-            -> $ Map Tag Dynamic
+          :schema $ quote $ Fn
+            Map Tag $ Map Tag Dynamic
+            List unfolding-leaf.schema/PathKey
+            , String Number
+              -> $ Map Tag $ Map Tag Dynamic
         'text $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn text (db path value)
             decode-map-as
               assoc-in db (conj path :text) value
-              Map Tag Dynamic
+              Map Tag $ Map Tag Dynamic
           :examples $ []
-          :schema $ quote $ Fn (Map Tag Dynamic) (List unfolding-leaf.schema/PathKey) String
-            -> $ Map Tag Dynamic
+          :schema $ quote $ Fn
+            Map Tag $ Map Tag Dynamic
+            List unfolding-leaf.schema/PathKey
+            , String
+              -> $ Map Tag $ Map Tag Dynamic
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns unfolding-leaf.updater.leaf
           :require $ unfolding-leaf.schema :as schema
