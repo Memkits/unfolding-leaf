@@ -36,7 +36,7 @@
               decode-map-as (dissoc leaf :id) 'unfolding-leaf.schema/LeafView
               , path
           :examples $ []
-          :schema $ quote $ Fn (Map Tag Dynamic) (List unfolding-leaf.schema/PathKey) (-> respo.schema/Component)
+          :schema $ quote $ Fn (Map Tag V) (List unfolding-leaf.schema/PathKey) (-> respo.schema/Component) (:generics V)
         'comp-node $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-node (leaf path)
             let
@@ -62,9 +62,9 @@
                       :on $ {} $ :click (handle-add path)
                     if
                       > (.len path) 1
-                      Option :some $ button $ {} (:inner-text |rm) (:style style-button)
+                      Some $ button $ {} (:inner-text |rm) (:style style-button)
                         :on $ {} $ :click (handle-rm path)
-                      Option :none
+                      , None
           :examples $ []
           :schema $ quote $ Fn unfolding-leaf.schema/LeafView (List unfolding-leaf.schema/PathKey) (-> respo.schema/Component)
         'handle-add $ %{} 'CodeEntry (:doc |)
@@ -78,7 +78,7 @@
           :examples $ []
           :schema $ quote $ Fn (List unfolding-leaf.schema/PathKey)
             -> $ Fn respo.schema/RespoEvent
-              Fn unfolding-leaf.schema/Op $ -> Unit
+              Fn Op $ -> Unit
               -> Unit
         'handle-input $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn handle-input (path)
@@ -91,7 +91,7 @@
           :examples $ []
           :schema $ quote $ Fn (List unfolding-leaf.schema/PathKey)
             -> $ Fn respo.schema/RespoEvent
-              Fn unfolding-leaf.schema/Op $ -> Unit
+              Fn Op $ -> Unit
               -> Unit
         'handle-rm $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn handle-rm (path)
@@ -104,7 +104,7 @@
           :examples $ []
           :schema $ quote $ Fn (List unfolding-leaf.schema/PathKey)
             -> $ Fn respo.schema/RespoEvent
-              Fn unfolding-leaf.schema/Op $ -> Unit
+              Fn Op $ -> Unit
               -> Unit
         'style-button $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def style-button
@@ -155,13 +155,13 @@
           :code $ quote $ defref *reel (typed-reel/new-reel schema/store)
           :examples $ []
           :schema $ quote $ Ref
-            reel.typed/State unfolding-leaf.schema/Op $ Map Tag $ Map Tag Dynamic
+            reel.typed/State schema/Op $ Map Tag $ Map Tag Dynamic
         'dispatch! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn dispatch! (op)
             reset! *reel $ typed-reel/record-op updater @*reel op (generate-id!) (host/now-ms)
             , &unit
           :examples $ []
-          :schema $ quote $ Fn unfolding-leaf.schema/Op (-> Unit)
+          :schema $ quote $ Fn schema/Op (-> Unit)
         'main! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn main! () (render-app!)
             add-watch! *reel :changes $ fn (r p)
@@ -248,19 +248,23 @@
             match op
               (:leaf/add d) (leaf/add db d op-id op-time)
               (:leaf/text d)
-                leaf/text db
-                  decode-map-as
-                    .unwrap $ first d
-                    List unfolding-leaf.schema/PathKey
-                  decode-map-as
-                    .unwrap $ last d
-                    , 'String
+                match
+                  .unwrap $ first d
+                  (List path)
+                    match
+                      .unwrap $ last d
+                      (String value)
+                        leaf/text db
+                          decode-map-as path $ List unfolding-leaf.schema/PathKey
+                          , value
+                      _ $ raise "||Expected text at the end of :leaf/text\""
+                  _ $ raise "||Expected a path at the start of :leaf/text\""
               (:leaf/set-text path value) (leaf/text db path value)
               (:leaf/rm d) (leaf/rm db d op-id op-time)
           :examples $ []
           :schema $ quote $ Fn
             Map Tag $ Map Tag Dynamic
-            , unfolding-leaf.schema/Op String Number
+            , Op String Number
               -> $ Map Tag $ Map Tag Dynamic
           :tests $ [] $ %{} 'TestEntry (:name |nominal-leaf-operations)
             :code $ quote $ let
@@ -302,7 +306,7 @@
           :examples $ []
           :schema $ quote $ Fn
             Map Tag $ Map Tag Dynamic
-            List unfolding-leaf.schema/PathKey
+            List schema/PathKey
             , String Number
               -> $ Map Tag $ Map Tag Dynamic
         'rm $ %{} 'CodeEntry (:doc |)
@@ -312,7 +316,7 @@
           :examples $ []
           :schema $ quote $ Fn
             Map Tag $ Map Tag Dynamic
-            List unfolding-leaf.schema/PathKey
+            List schema/PathKey
             , String Number
               -> $ Map Tag $ Map Tag Dynamic
         'text $ %{} 'CodeEntry (:doc |)
@@ -323,7 +327,7 @@
           :examples $ []
           :schema $ quote $ Fn
             Map Tag $ Map Tag Dynamic
-            List unfolding-leaf.schema/PathKey
+            List schema/PathKey
             , String
               -> $ Map Tag $ Map Tag Dynamic
       :ns $ %{} 'NsEntry (:doc |)
