@@ -71,7 +71,7 @@
           :code $ quote $ defn handle-add (path)
             fn (e d!)
               hint-fn $ Fn respo.schema/RespoEvent
-                Fn unfolding-leaf.schema/Op $ -> Unit
+                Fn Op $ -> Unit
                 -> Unit
               d! $ Op :leaf/add path
               , &unit
@@ -84,7 +84,7 @@
           :code $ quote $ defn handle-input (path)
             fn (e d!)
               hint-fn $ Fn respo.schema/RespoEvent
-                Fn unfolding-leaf.schema/Op $ -> Unit
+                Fn Op $ -> Unit
                 -> Unit
               d! $ Op :leaf/set-text path $ decode-map-as (:value e) 'String
               , &unit
@@ -97,7 +97,7 @@
           :code $ quote $ defn handle-rm (path)
             fn (e d!)
               hint-fn $ Fn respo.schema/RespoEvent
-                Fn unfolding-leaf.schema/Op $ -> Unit
+                Fn Op $ -> Unit
                 -> Unit
               d! $ Op :leaf/rm path
               , &unit
@@ -166,8 +166,8 @@
           :code $ quote $ defn main! () (render-app!)
             add-watch! *reel :changes $ fn (r p)
               hint-fn $ Fn
-                reel.typed/State unfolding-leaf.schema/Op $ Map Tag $ Map Tag Dynamic
-                reel.typed/State unfolding-leaf.schema/Op $ Map Tag $ Map Tag Dynamic
+                reel.typed/State schema/Op $ Map Tag $ Map Tag Dynamic
+                reel.typed/State schema/Op $ Map Tag $ Map Tag Dynamic
                 -> Unit
               render-app!
             println "|App started."
@@ -253,10 +253,7 @@
                   (List path)
                     match
                       .unwrap $ last d
-                      (String value)
-                        leaf/text db
-                          decode-map-as path $ List unfolding-leaf.schema/PathKey
-                          , value
+                      (String value) (leaf/text db path value)
                       _ $ raise "||Expected text at the end of :leaf/text\""
                   _ $ raise "||Expected a path at the start of :leaf/text\""
               (:leaf/set-text path value) (leaf/text db path value)
