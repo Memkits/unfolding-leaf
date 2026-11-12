@@ -8,7 +8,7 @@ Demo http://repo.tiye.me/Memkits/unfolding-leaf/
 
 ### 当前版本
 
-使用正式 Calcit 和 `@calcit/procs` 0.41.1，升级后重新安装依赖并构建。原节点 Map、路径和 `:leaf/text` 列表事件继续可用。渲染入口将节点树检查为递归的 `LeafView`，子节点递归渲染直接读取具名字段。Reel 与 updater 知道顶层每项都是节点 Map，渲染入口直接读取根节点。
+使用正式 Calcit 和 `@calcit/procs` 0.42.1，升级后重新安装依赖并构建。原节点 Map、路径和 `:leaf/text` 列表事件继续可用。渲染入口将节点树检查为递归的 `LeafView`，子节点递归渲染直接读取具名字段。Reel 与 updater 知道顶层每项都是节点 Map，渲染入口直接读取根节点。
 
 ### 历史：正式 Calcit 0.30.1 配对
 
@@ -18,7 +18,7 @@ Respo0.16.124（传递JS-FFI0.2.5、Router0.8.37）。请重新安装完整依�
 CI以原all-defs保留全部定义覆盖，删除重复namespace清单；完整strict、原测试和COS内置verify保留，
 不新增验证脚本、concurrently或预算，也不改变原前端/服务器路径。PR只预览，不自动部署生产。
 
-Use paired formal Calcit / `@calcit/procs` 0.41.1 and `caps --ci --strict`. The canonical sources are
+Use paired formal Calcit / `@calcit/procs` 0.42.1 and `caps --ci --strict`. The canonical sources are
 `calcit.cirru` and `deps.cirru`; retired `compact.cirru` and `package.cirru`
 snapshots are ignored and rejected by CI. Generated-JavaScript node editing
 regressions run with `node --test scripts/*.test.mjs` after compilation.

@@ -161,7 +161,7 @@
             reset! *reel $ typed-reel/record-op updater @*reel op (generate-id!) (host/now-ms)
             , &unit
           :examples $ []
-          :schema $ quote $ Fn schema/Op (-> Unit)
+          :schema $ quote $ Fn schema/Op (-> Unit) (:features :state)
         'main! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn main! () (render-app!)
             add-watch! *reel :changes $ fn (r p)
@@ -172,7 +172,7 @@
               render-app!
             println "|App started."
           :examples $ []
-          :schema $ quote $ Fn (-> Unit) (:features :js-ffi)
+          :schema $ quote $ Fn (-> Unit) (:features :io :js-ffi :state)
         'mount-target $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn mount-target ()
             let
@@ -188,12 +188,12 @@
             render-app!
             println "|Code updated."
           :examples $ []
-          :schema $ quote $ Fn (-> Unit) (:features :js-ffi)
+          :schema $ quote $ Fn (-> Unit) (:features :io :js-ffi :state)
         'render-app! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn render-app! ()
             render! (mount-target) (comp-container @*reel) dispatch!
           :examples $ []
-          :schema $ quote $ Fn (-> Unit) (:features :js-ffi)
+          :schema $ quote $ Fn (-> Unit) (:features :js-ffi :state)
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns unfolding-leaf.main
           :require
