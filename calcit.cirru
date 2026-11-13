@@ -114,6 +114,7 @@
               :font-size |10px
               :line-height 1
           :examples $ []
+          :schema $ quote $ Map Tag respo-ui.schema/StyleValue
         'style-input $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn style-input (text)
             {} (:font-size |14px) (:line-height 1.6) (:padding "|0 8px") (:border |none) (:outline |none) (:text-align |left)
@@ -128,6 +129,7 @@
           :code $ quote $ def style-leaf
             {} (:display |flex) (:align-items |center)
           :examples $ []
+          :schema $ quote $ Map Tag respo-ui.schema/StyleValue
         'style-list $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def style-list
             {} (:display |flex) (:flex-direction |column) (:align-items |flex-start)
@@ -138,10 +140,12 @@
               :border-radius |16px
               :padding "|8px 0 0px 8px"
           :examples $ []
+          :schema $ quote $ Map Tag respo-ui.schema/StyleValue
         'style-toolbar $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def style-toolbar
             {} $ :padding "|0 8px"
           :examples $ []
+          :schema $ quote $ Map Tag respo-ui.schema/StyleValue
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns unfolding-leaf.comp.leaf
           :require
