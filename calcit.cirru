@@ -19,7 +19,7 @@
                 comp-leaf leaf $ [] :leaf
           :examples $ []
           :schema $ quote $ Fn
-            reel.typed/State unfolding-leaf.schema/Op $ Map Tag $ Map Tag Dynamic
+            reel.typed/State unfolding-leaf.schema/Op $ Map Tag $ Map Tag unfolding-leaf.schema/LeafField
             -> respo.schema/Component
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns unfolding-leaf.comp.container
@@ -159,7 +159,7 @@
           :code $ quote $ defref *reel (typed-reel/new-reel schema/store)
           :examples $ []
           :schema $ quote $ Ref
-            reel.typed/State schema/Op $ Map Tag $ Map Tag Dynamic
+            reel.typed/State schema/Op $ Map Tag $ Map Tag schema/LeafField
         'dispatch! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn dispatch! (op)
             reset! *reel $ typed-reel/record-op updater @*reel op (generate-id!) (host/now-ms)
@@ -170,8 +170,8 @@
           :code $ quote $ defn main! () (render-app!)
             add-watch! *reel :changes $ fn (r p)
               hint-fn $ Fn
-                reel.typed/State schema/Op $ Map Tag $ Map Tag Dynamic
-                reel.typed/State schema/Op $ Map Tag $ Map Tag Dynamic
+                reel.typed/State schema/Op $ Map Tag $ Map Tag schema/LeafField
+                reel.typed/State schema/Op $ Map Tag $ Map Tag schema/LeafField
                 -> Unit
               render-app!
             println "|App started."
@@ -209,6 +209,11 @@
             js-ffi.shared :as host
     'unfolding-leaf.schema $ %{} 'FileEntry
       :defs $ {}
+        'LeafField $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defunion LeafField String
+            Map String $ Map Tag unfolding-leaf.schema/LeafField
+          :examples $ []
+          :schema $ quote UnionDef
         'LeafView $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defstruct LeafView
             :id $ Option String
@@ -234,15 +239,17 @@
           :schema $ quote UnionDef
         'leaf $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def leaf
-            {} (:id nil) (:text |)
-              :children $ {}
+            decode-map-as
+              {} (:text |)
+                :children $ {}
+              Map Tag unfolding-leaf.schema/LeafField
           :examples $ []
-          :schema $ quote $ Map Tag Dynamic
+          :schema $ quote $ Map Tag LeafField
         'store $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def store
             {} $ :leaf leaf
           :examples $ []
-          :schema $ quote $ Map Tag (Map Tag Dynamic)
+          :schema $ quote $ Map Tag (Map Tag LeafField)
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns unfolding-leaf.schema
     'unfolding-leaf.updater $ %{} 'FileEntry
@@ -264,20 +271,20 @@
               (:leaf/rm d) (leaf/rm db d op-id op-time)
           :examples $ []
           :schema $ quote $ Fn
-            Map Tag $ Map Tag Dynamic
+            Map Tag $ Map Tag unfolding-leaf.schema/LeafField
             , Op String Number
-              -> $ Map Tag $ Map Tag Dynamic
+              -> $ Map Tag $ Map Tag unfolding-leaf.schema/LeafField
           :tests $ [] $ %{} 'TestEntry (:name |nominal-leaf-operations)
             :code $ quote $ let
                 initial $ {} $ :leaf
-                  {} (:id nil) (:text |)
+                  {} (:text |)
                     :children $ {}
                 child-path $ [] :leaf :children |child
                 added $ updater initial
                   Op :leaf/add $ [] :leaf
                   , |child 0
                 expected-added $ {} $ :leaf
-                  {} (:id nil) (:text |)
+                  {} (:text |)
                     :children $ {} $ |child
                       {} (:id |child) (:text |)
                         :children $ {}
@@ -303,34 +310,34 @@
                   child-path $ conj op-data :children op-id
                   new-leaf $ assoc schema/leaf :id op-id
                 -> db $ assoc-in child-path new-leaf
-              Map Tag $ Map Tag Dynamic
+              Map Tag $ Map Tag unfolding-leaf.schema/LeafField
           :examples $ []
           :schema $ quote $ Fn
-            Map Tag $ Map Tag Dynamic
+            Map Tag $ Map Tag schema/LeafField
             List schema/PathKey
             , String Number
-              -> $ Map Tag $ Map Tag Dynamic
+              -> $ Map Tag $ Map Tag schema/LeafField
         'rm $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn rm (db op-data op-id op-time)
             decode-map-as (dissoc-in db op-data)
-              Map Tag $ Map Tag Dynamic
+              Map Tag $ Map Tag unfolding-leaf.schema/LeafField
           :examples $ []
           :schema $ quote $ Fn
-            Map Tag $ Map Tag Dynamic
+            Map Tag $ Map Tag schema/LeafField
             List schema/PathKey
             , String Number
-              -> $ Map Tag $ Map Tag Dynamic
+              -> $ Map Tag $ Map Tag schema/LeafField
         'text $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn text (db path value)
             decode-map-as
               assoc-in db (conj path :text) value
-              Map Tag $ Map Tag Dynamic
+              Map Tag $ Map Tag unfolding-leaf.schema/LeafField
           :examples $ []
           :schema $ quote $ Fn
-            Map Tag $ Map Tag Dynamic
+            Map Tag $ Map Tag schema/LeafField
             List schema/PathKey
             , String
-              -> $ Map Tag $ Map Tag Dynamic
+              -> $ Map Tag $ Map Tag schema/LeafField
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns unfolding-leaf.updater.leaf
           :require $ unfolding-leaf.schema :as schema
