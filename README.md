@@ -8,7 +8,7 @@ Demo http://repo.tiye.me/Memkits/unfolding-leaf/
 
 ### 当前版本
 
-使用正式 Calcit 和 `@calcit/procs` 0.42.1，升级后重新安装依赖并构建。原节点 Map、路径和 `:leaf/text` 列表事件继续可用。渲染入口将节点树检查为递归的 `LeafView`，子节点递归渲染直接读取具名字段。Reel 与 updater 知道顶层每项都是节点 Map，渲染入口直接读取根节点。
+使用正式 Calcit 和 `@calcit/procs` 0.42.1，升级后重新安装依赖并构建。 当前正式依赖为 Reel 0.11.1、Respo 0.19.9、UI 0.15.3，传递 JS FFI 0.2.16 和 Router 0.12.7。原节点 Map、路径和 `:leaf/text` 列表事件继续可用。渲染入口将节点树检查为递归的 `LeafView`，子节点递归渲染直接读取具名字段。Reel 与 updater 知道顶层每项都是节点 Map，渲染入口直接读取根节点。
 
 ### 历史：正式 Calcit 0.30.1 配对
 
